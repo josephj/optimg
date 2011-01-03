@@ -1,0 +1,8 @@
+optimg - Command line interface for OptimizImage tool.
+
+
+Usage: optimg [options] image_path
+
+  -c, --check-only   Check if path has fully optimized.
+  -r, --report-only  Show report without really optimization.
+  --png8             Transform all PNG files to PNG8 format.
