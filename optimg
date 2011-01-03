@@ -1,0 +1,116 @@
+#!/usr/bin/php
+<?php
+/**
+ * optimg - Command line interface for OptimizeImage tool.
+ *
+ * @author Joseph Chiang <josephj6802@gmail.com>
+ * @package optimg
+ */
+
+set_exception_handler("handle_exception");
+
+require_once dirname(__FILE__) . "/OptimizeImage.php";
+
+// Parse command line options.
+$check_only = FALSE;
+$report_only = FALSE;
+$options = array(
+    "use_png8"    => FALSE,
+);
+
+array_shift($argv);
+if ( ! count($argv))
+{
+    print_usage();
+    exit;
+}
+while ($arg = array_shift($argv)) {
+    switch ($arg) {
+    case "-c":
+    case "--check":
+    case "--check-only":
+        $check_only = TRUE;
+        $report_only = FALSE;
+        break;
+    case "-r":
+    case "--report":
+    case "--report-only":
+        $check_only = FALSE;
+        $report_only = TRUE;
+        break;
+    case "--png8":
+        $options["use_png8"] = TRUE;
+        break;
+    case "-h":
+    case "--help":
+        print_usage();
+        exit;
+        break;
+    default:
+        $path = $arg or ".";
+        break;
+    }
+}
+
+$optimizer = new OptimizeImage($path, $options);
+$report = $optimizer->get_report();
+switch (TRUE) {
+case ($check_only) :
+    $i = 0;
+    $msg = "";
+    foreach ($report["all"] as $info)
+    {
+        $i++;
+        if ($info["saved_size"] > 0)
+        {
+            $msg.= "{$info["src_file"]}\t{$info["saved_size"]}\n";
+        }
+        else {
+            $msg.= "{$info["src_file"]}\t0\n";
+        }
+    }
+    echo $msg;
+    break;
+case ($report_only) :
+    echo_report($report);
+    break;
+default :
+    $optimizer->optimize();
+    echo_report($report);
+    echo "Successfully optimized your images. {$report["target_save_size"]} bytes saved!\n";
+}
+function echo_report($report)
+{
+    $i = 0;
+    $msg = "";
+    foreach ($report["all"] as $info)
+    {
+        $i++;
+        if ($info["saved_size"] > 0)
+        {
+            $msg.= "$i. {$info["src_file"]} : save {$info["saved_size"]} bytes\n";
+        }
+        else {
+            $msg.= "$i. {$info["src_file"]} : optimized already!\n";
+        }
+    }
+    echo "$msg\n";
+    echo "Total saved: {$report["target_save_size"]} bytes\n";
+}
+
+function handle_exception($ex) 
+{
+    die("Error: ".$ex->getMessage()."\n");
+}
+
+function print_usage() 
+{
+    echo "Usage: optimg [options] image_path\n" .
+         "\n" .
+         "  -c, --check-only   Check if path has fully optimized.\n" .
+         "  -r, --report-only  Show report without really optimization.\n" .
+         "  --png8             Transform all PNG files to PNG8 format.\n" .
+         "\n";
+    exit;
+}
+?>
