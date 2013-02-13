@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 /**
  * optimg - Command line interface for OptimizeImage tool.
@@ -98,12 +98,12 @@ function echo_report($report)
     echo "Total saved: {$report["target_save_size"]} bytes\n";
 }
 
-function handle_exception($ex) 
+function handle_exception($ex)
 {
     die("Error: ".$ex->getMessage()."\n");
 }
 
-function print_usage() 
+function print_usage()
 {
     echo "Usage: optimg [options] image_path\n" .
          "\n" .

@@ -1,19 +1,19 @@
 <?php
 /**
- * OptimizeImage 
- * 
- * @package 
+ * OptimizeImage
+ *
+ * @package
  * @version $id$
  * @copyright 1997-2005 The PHP Group
- * @author Joseph Chiang <josephj6802@gmail.com> 
+ * @author Joseph Chiang <josephj6802@gmail.com>
  * @license PHP Version 3.0 {@link http://www.php.net/license/3_0.txt}
  */
 class OptimizeImage {
 
     /**
-     * is_image 
-     * 
-     * @param mixed $file_path 
+     * is_image
+     *
+     * @param mixed $file_path
      * @static
      * @access public
      * @return void
@@ -27,11 +27,11 @@ class OptimizeImage {
         $types = array("gif", "png", "gifgif", "jpg", "jpeg", "bmp");
         exec("/usr/bin/identify -quiet -format \"%m\" $file_path", $return, $error);
         $type = ($error === 0) ? mb_strtolower($return[0]) : "";
-        if ($error == 1) 
+        if ($error == 1)
         {
             return FALSE;
         }
-        if (substr($type, 0, 6) === "gifgif") 
+        if (substr($type, 0, 6) === "gifgif")
         {
             $type = "gifgif";
         }
@@ -39,9 +39,9 @@ class OptimizeImage {
     }
 
     /**
-     * get_type 
-     * 
-     * @param mixed $file_path 
+     * get_type
+     *
+     * @param mixed $file_path
      * @static
      * @access public
      * @return void
@@ -55,11 +55,11 @@ class OptimizeImage {
         exec("/usr/bin/identify -quiet -format \"%m\" $file_path", $return, $error);
         $type = ($error === 0) ? mb_strtolower($return[0]) : "";
         $type = ($error === 0) ? mb_strtolower($return[0]) : "";
-        if ($error == 1) 
+        if ($error == 1)
         {
             return FALSE;
         }
-        if (substr($type, 0, 6) === "gifgif") 
+        if (substr($type, 0, 6) === "gifgif")
         {
             $type = "gifgif";
         }
@@ -89,7 +89,7 @@ class OptimizeImage {
         {
             return FALSE;
         }
-        else 
+        else
         {
             return TRUE;
         }
@@ -106,7 +106,7 @@ class OptimizeImage {
 
     public function get_report($type = "")
     {
-        return $this->report; 
+        return $this->report;
     }
 
     private function _process()
@@ -118,12 +118,12 @@ class OptimizeImage {
         {
             throw new FileNotFoundException("File or path not found: " . $path);
         }
-        // Get files 
+        // Get files
         if (is_dir($path))
         {
             $handle = opendir($path);
             // FIXME : need to run recursively
-            while (FALSE !== ($file = readdir($handle))) 
+            while (FALSE !== ($file = readdir($handle)))
             {
                 if (is_dir($file))
                 {
@@ -150,7 +150,7 @@ class OptimizeImage {
             throw new NoImageFoundException("Image not found : $path");
         }
 
-        // Build temporary directory 
+        // Build temporary directory
         $tmp_path = microtime();
         $tmp_path = substr(md5($tmp_path), 0, 8);
         $tmp_path = "/tmp/$tmp_path";
@@ -172,7 +172,7 @@ class OptimizeImage {
             $src_filename = pathinfo($src_file);
             $src_filename = str_replace("." . $src_filename["extension"], "", $src_filename["basename"]);
             $dest_file = "{$tmp_path}/{$src_filename}";
-            switch ($src_filetype) 
+            switch ($src_filetype)
             {
                 case "jpg":
                 case "jpeg":
@@ -181,7 +181,7 @@ class OptimizeImage {
                     exec($cmd, $return, $error);
                 break;
                 case "gif":
-                case "bmp": 
+                case "bmp":
                     // convert first
                     $raw_file = $dest_file . "-raw.png";
                     $dest_file .= ".png";
@@ -191,7 +191,7 @@ class OptimizeImage {
                     {
                         $this->savePng8($raw_file, $dest_file);
                     }
-                    else 
+                    else
                     {
                         exec("/usr/bin/pngcrush -rem alla -brute -reduce $raw_file $dest_file");
                     }
@@ -207,7 +207,7 @@ class OptimizeImage {
                     {
                         $this->savePng8($src_file, $dest_file);
                     }
-                    else 
+                    else
                     {
                         $cmd = "/usr/bin/pngcrush -rem alla -brute -reduce $src_file $dest_file";
                         exec($cmd, $return, $error);
@@ -228,10 +228,10 @@ class OptimizeImage {
                 "saved_size" => $saved_size,
             );
             $this->report["all"][] = $info;
-            if ($saved_size <= 0) 
+            if ($saved_size <= 0)
             {
                 // if the filesize can't be smaller, don't keep the optimized image in temp folder
-                exec("rm -f $dest_file", $var); 
+                exec("rm -f $dest_file", $var);
                 $this->report["optimized"][] = $info;
             }
             else {
